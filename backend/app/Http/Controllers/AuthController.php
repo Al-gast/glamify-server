@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -54,12 +55,19 @@ class AuthController extends Controller
         
     }
      
-    public function login()
+    public function login(Request $request)
     {
-        $credentials = request(['email', 'password']);
+        $email = request('input');
+        $username = request('input');
+        $password = request('password');
+    
 
-        if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        if (! $token = auth()->attempt(['email' => $email,
+        'password' => $password])){
+            if (! $token = auth()->attempt(['username' => $username,
+            'password' => $password])){
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
         }
 
         return $this->respondWithToken($token);
